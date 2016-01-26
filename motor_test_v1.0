@@ -1,0 +1,88 @@
+#TEST CODE FOR INTERRUPT BASED LOCOMOTION SYSTEM
+#CONTROLLER -> ATMEGA 16
+/***********************************************************************************
+ *NAME :- TRIAL_CODE v1.0
+ *PURPOSE :- TO PLACE THE ARM IN X-Y COOR USING INTERRUPT 
+ *Created: 22-10-2015 20:20:16
+ * Author: SANKET
+ **********************************************************************************/ 
+
+#include "avr/io.h"
+#include "avr/interrupt.h"
+#include "util/delay.h"
+ 
+#define ext1	PD2			//X - coordinate
+#define ext2 	PD3			//Y - coordinate
+#define motor1_ina PB4
+#define motor1_inb PB5
+#define motor2_ina PB6
+#define motor2_inb PB7
+
+volatile unsigned char count_x ,count_y ,real_x ,real_y ;  
+ 
+ 
+ 
+void stop_motor1(void)
+{
+	PORTB &= 0X40;
+}
+
+
+
+void stop_motor2(void)
+{
+	PORTB &= 0X10 ;
+}
+
+ 
+ 
+ISR (INT0_vect)
+{
+	count_x++;
+	if(count_x == real_x )
+		stop_motor1();
+}	
+
+ISR (INT1_vect)
+{
+		count_y++;
+		if(count_y == real_y)
+			stop_motor2();
+
+}
+
+
+init_intr(void)
+{	
+	
+	SREG |= (1<<7);
+	PORTD = 1<<2 | 1<<3 ;
+	MCUCR = 0X0F;
+	GICR = (1<<INT0)|(1<<INT1);
+	sei();
+												
+}
+ 
+ 
+void place(unsigned char x ,unsigned char y)
+{
+	_delay_ms(100);
+	count_x = 0;
+	count_y = 0;
+	real_x  = x;
+	real_y  = y;
+	PORTB   = 0X00;
+	_delay_ms(1000);	 	 
+	PORTB = 0X50;
+}
+
+ 
+int main(void)
+{
+	
+	DDRB = 0XFF;
+	DDRC = 0XFF;
+	init_intr();
+	place(1,2);									//PLACE THE COORDINATES HERE 
+	while(1);
+}
