@@ -1,0 +1,27 @@
+int incomingByte = 0;
+int i = 0;
+
+void setup()
+{
+		Serial.begin(9600);
+}
+
+void loop()
+{
+                
+               
+		if(Serial.available() > 0)              //Recieving Data
+		{
+			if(i == 0)
+			{
+          Serial.print("\n\nNew incoming Data is : ");
+      }
+      i = ( i + 1 )%4;
+      incomingByte = Serial.read();
+			//Serial.println("in the Serial loop");
+			Serial.print(incomingByte-48);
+		}
+                
+    Serial.write(" WASSUPPPP\n ");          //transmitting Data
+                
+}
